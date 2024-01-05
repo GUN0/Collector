@@ -1,0 +1,6 @@
+beautifulsoup4==4.12.2
+matplotlib @ file:///work/perseverance-python-buildout/croot/matplotlib-suite_1698863180732/work
+numpy @ file:///croot/numpy_and_numpy_base_1701295038894/work/dist/numpy-1.26.2-cp312-cp312-linux_x86_64.whl#sha256=d325e577f2b8c7097594c6b4a36f053f4f57cc5c5cfc60772695c4b6af3c9e29
+openpyxl @ file:///work/perseverance-python-buildout/croot/openpyxl_1698896491780/work
+pandas==2.1.4
+requests==2.31.0
