@@ -1,8 +1,15 @@
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
+import openpyxl
+import warnings
 
+from itertools import chain
+from itertools import zip_longest
 
+warnings.filterwarnings("ignore")
+
+# Getting the info from webpage
 STOCKS = ["ACSEL"]
 url = "https://www.isyatirim.com.tr/tr-tr/analiz/hisse/Sayfalar/sirket-karti.aspx?hisse=ACSEL"
 request = requests.get(url)
@@ -10,16 +17,16 @@ supply = BeautifulSoup(request.text, "html.parser")
 stockSupplier = supply.find("select", id="ddlAddCompare")
 rawStocks = stockSupplier.findChild("optgroup").findAll("option")
 
+# Getting the names of stocks from webpage
 # for stock in rawStocks:
 #     STOCKS.append(stock.string)
 
+# Get each stocks date and period
 for each in STOCKS:
-    nameOfStock = each
+    stockName = each
     dates = []
-    store = {}
-    year = []
-    period = []
-    url1 = "https://www.isyatirim.com.tr/tr-tr/analiz/hisse/Sayfalar/sirket-karti.aspx?hisse="+nameOfStock
+
+    url1 = "https://www.isyatirim.com.tr/tr-tr/analiz/hisse/Sayfalar/sirket-karti.aspx?hisse="+stockName
     req1 = requests.get(url1)
     soup = BeautifulSoup(req1.text, "html.parser")
     selectDate = soup.find("select", id="ddlMaliTabloFirst")
@@ -31,32 +38,35 @@ for each in STOCKS:
 
         for child in children:
             dates.append(child.string.rsplit("/"))
-            store[each] = dates
 
-        for i in store[each]:
-            year.append(i[0])
-            period.append(i[1])
+        def grouper(iterable, n, fillvalue=None):
+            args = [iter(iterable)] * n
+            return zip_longest(*args, fillvalue=fillvalue)
 
-        parameters = (
-            ("companyCode", nameOfStock),
-            ("exchange", "TRY"),
-            ("financialGroup", value),
-            ("year1", year[0]),
-            ("period1", period[0]),
-            ("year2", year[1]),
-            ("period2", period[1]),
-            ("year3", year[2]),
-            ("period3", period[2]),
-            ("year4", year[3]),
-            ("period4", period[3]),
-        )
+        dates = [list(filter(None, group)) for group in grouper(dates, 4, fillvalue=['2023', '9'])]
 
-        url2 = "https://www.isyatirim.com.tr/_layouts/15/IsYatirim.Website/Common/Data.aspx/MaliTablo"
-        req2 = requests.get(url2, params=parameters).json()["value"]
-        data = pd.DataFrame.from_dict(req2)
-        data.drop(columns=["itemCode", "itemDescEng"], inplace=True)
-        print(data)
-        
+        for a, b, c, d in dates:
+            parameters = (
+                ("companyCode", stockName),
+                ("exchange", "TRY"),
+                ("financialGroup", value),
+                ("year1", a[0]),
+                ("period1", a[1]),
+                ("year2", b[0]),
+                ("period2", b[1]),
+                ("year3", c[0]),
+                ("period3", c[1]),
+                ("year4", d[0]),
+                ("period4", d[1]),
+            )
+
+            url2 = "https://www.isyatirim.com.tr/_layouts/15/IsYatirim.Website/Common/Data.aspx/MaliTablo"
+            req2 = requests.get(url2, params=parameters).json()["value"]
+            data = pd.DataFrame.from_dict(req2)
+            data = data.drop(['itemCode', 'itemDescEng'], axis=1)
+            filteredData = data[data['itemDescTr'] == "BRÜT KAR (ZARAR)"]
+
+            print(filteredData)
+
     except AttributeError:
         continue
-
