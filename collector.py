@@ -59,14 +59,18 @@ for each in STOCKS:
                 ("year4", d[0]),
                 ("period4", d[1]),
             )
+            d1 = a[0] + '/' + a[1]
+            d2 = b[0] + '/' + b[1]
+            d3 = c[0] + '/' + c[1]
+            d4 = d[0] + '/' + d[1]
 
             url2 = "https://www.isyatirim.com.tr/_layouts/15/IsYatirim.Website/Common/Data.aspx/MaliTablo"
             req2 = requests.get(url2, params=parameters).json()["value"]
             data = pd.DataFrame.from_dict(req2)
             data = data.drop(['itemCode', 'itemDescEng'], axis=1)
-            filteredData = data[data['itemDescTr'] == "BRÜT KAR (ZARAR)"]
-
-            print(filteredData)
+            filteredData = data.rename(columns={'value1': d1, 'value2': d2, 'value3': d3, 'value4': d4})
+            
+            print(filteredData[filteredData['itemDescTr'] == 'BRÜT KAR (ZARAR)'])
 
     except AttributeError:
         continue
