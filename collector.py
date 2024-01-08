@@ -69,7 +69,7 @@ for each in STOCKS:
             data = pd.DataFrame.from_dict(req2)
             data = data.drop(['itemCode', 'itemDescEng'], axis=1)
             filteredData = data.rename(columns={'value1': d1, 'value2': d2, 'value3': d3, 'value4': d4})
-            
+            filteredData = filteredData.filter(items=['itemDescTr', d1, d2, d3, d4])
             print(filteredData[filteredData['itemDescTr'] == 'BRÜT KAR (ZARAR)'])
 
     except AttributeError:
