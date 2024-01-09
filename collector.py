@@ -23,10 +23,11 @@ rawStocks = stockSupplier.findChild("optgroup").findAll("option")
 
 # Get each stocks date and period
 for each in STOCKS:
-    stockName = each
+    stockName = {}
+    stockData = []
     dates = []
 
-    url1 = "https://www.isyatirim.com.tr/tr-tr/analiz/hisse/Sayfalar/sirket-karti.aspx?hisse="+stockName
+    url1 = "https://www.isyatirim.com.tr/tr-tr/analiz/hisse/Sayfalar/sirket-karti.aspx?hisse="+each
     req1 = requests.get(url1)
     soup = BeautifulSoup(req1.text, "html.parser")
     selectDate = soup.find("select", id="ddlMaliTabloFirst")
@@ -47,7 +48,7 @@ for each in STOCKS:
 
         for a, b, c, d in dates:
             parameters = (
-                ("companyCode", stockName),
+                ("companyCode", each),
                 ("exchange", "TRY"),
                 ("financialGroup", value),
                 ("year1", a[0]),
@@ -67,10 +68,15 @@ for each in STOCKS:
             url2 = "https://www.isyatirim.com.tr/_layouts/15/IsYatirim.Website/Common/Data.aspx/MaliTablo"
             req2 = requests.get(url2, params=parameters).json()["value"]
             data = pd.DataFrame.from_dict(req2)
-            data = data.drop(['itemCode', 'itemDescEng'], axis=1)
-            filteredData = data.rename(columns={'value1': d1, 'value2': d2, 'value3': d3, 'value4': d4})
-            filteredData = filteredData.filter(items=['itemDescTr', d1, d2, d3, d4])
-            print(filteredData[filteredData['itemDescTr'] == 'BRÜT KAR (ZARAR)'])
+            filteredData = data.filter(items=['itemDescTr', 'value1', 'value2', 'value3', 'value4'])
+            filteredData = filteredData.rename(columns={'value1': d1, 'value2': d2, 'value3': d3, 'value4': d4})
+            filteredData = filteredData[filteredData['itemDescTr'] == 'BRÜT KAR (ZARAR)']
+
+            stockData.append(filteredData)
+
+        stockName[each] = stockData
+
+        print(stockName)
 
     except AttributeError:
         continue
