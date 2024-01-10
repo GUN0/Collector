@@ -23,9 +23,10 @@ rawStocks = stockSupplier.findChild("optgroup").findAll("option")
 
 # Get each stocks date and period
 for each in STOCKS:
+    dates = []
     stockName = {}
     stockData = []
-    dates = []
+    title = 'Bilanço'
 
     url1 = "https://www.isyatirim.com.tr/tr-tr/analiz/hisse/Sayfalar/sirket-karti.aspx?hisse="+each
     req1 = requests.get(url1)
@@ -69,14 +70,20 @@ for each in STOCKS:
             req2 = requests.get(url2, params=parameters).json()["value"]
             data = pd.DataFrame.from_dict(req2)
             filteredData = data.filter(items=['itemDescTr', 'value1', 'value2', 'value3', 'value4'])
-            filteredData = filteredData.rename(columns={'value1': d1, 'value2': d2, 'value3': d3, 'value4': d4})
-            filteredData = filteredData[filteredData['itemDescTr'] == 'BRÜT KAR (ZARAR)']
-
+            filteredData = filteredData.rename(columns={'itemDescTr': title,'value1': d1, 'value2': d2, 'value3': d3, 'value4': d4})
+            filteredData = filteredData[filteredData[title] == 'BRÜT KAR (ZARAR)']
+ 
             stockData.append(filteredData)
 
-        stockName[each] = stockData
+        df = pd.concat(stockData, axis=1)
+        df.fillna(0, inplace=True)
 
-        print(stockName)
+        df.drop([title], axis=1, inplace=True)
 
+        # for key, frame in stockName.items():
+        #     print(key)
+        #     print(frame)
+        print(df)
+        # df.to_excel("/home/gun/Documents/ReportCollector/FinancialReports/{}.xlsx".format(each), index=False)
     except AttributeError:
         continue
