@@ -74,6 +74,7 @@ for each in STOCKS:
             filteredData = filteredData[filteredData[title] == 'BRÜT KAR (ZARAR)']
  
             stockData.append(filteredData)
+
         a = stockData[0][title]
         col1 = pd.DataFrame(a, columns=[title])
         col1.reset_index(drop=True, inplace=True)
@@ -81,11 +82,12 @@ for each in STOCKS:
         for i in stockData:
             i.drop(columns=title, inplace=True)
             i.reset_index(drop=True, inplace=True)
+
         df = pd.concat(stockData, axis=1)
         df.fillna(0, inplace=True)
         df.insert(0,title, col1)
-
-        print(df)
-        # df.to_excel("/home/gun/Documents/ReportCollector/FinancialReports/{}.xlsx".format(each), index=False)
+        df = df.loc[:, ~df.columns.duplicated()]
+        
+        df.to_excel("/home/gun/Documents/ReportCollector/FinancialReports/{}.xlsx".format(each), index=False)
     except AttributeError:
         continue
