@@ -71,21 +71,22 @@ for each in STOCKS:
             data = pd.DataFrame.from_dict(req2)
             filteredData = data.filter(items=['itemDescTr', 'value1', 'value2', 'value3', 'value4'])
             filteredData = filteredData.rename(columns={'itemDescTr': title,'value1': d1, 'value2': d2, 'value3': d3, 'value4': d4})
-            filteredData = filteredData[filteredData[title] == 'BRÜT KAR (ZARAR)']
+            # filteredData = filteredData[filteredData[title] == 'BRÜT KAR (ZARAR)']
+            filteredData.set_index(title, inplace=True)
  
             stockData.append(filteredData)
 
-        a = stockData[0][title]
-        col1 = pd.DataFrame(a, columns=[title])
-        col1.reset_index(drop=True, inplace=True)
-
-        for i in stockData:
-            i.drop(columns=title, inplace=True)
-            i.reset_index(drop=True, inplace=True)
+        # a = stockData[0][title]
+        # col1 = pd.DataFrame(a, columns=[title])
+        # col1.reset_index(drop=True, inplace=True)
+        #
+        # for i in stockData:
+        #     i.drop(columns=title, inplace=True)
+        #     i.reset_index(drop=True, inplace=True)
 
         df = pd.concat(stockData, axis=1)
         df.fillna(0, inplace=True)
-        df.insert(0,title, col1)
+        # df.insert(0,title, col1)
         df = df.loc[:, ~df.columns.duplicated()]
         
         df.to_excel("/home/gun/Documents/ReportCollector/FinancialReports/{}.xlsx".format(each), index=False)
