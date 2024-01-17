@@ -10,7 +10,7 @@ from itertools import zip_longest
 warnings.filterwarnings("ignore")
 
 # Getting the info from webpage
-STOCKS = ["ACSEL"]
+STOCKS = ["ALARK"]
 url = "https://www.isyatirim.com.tr/tr-tr/analiz/hisse/Sayfalar/sirket-karti.aspx?hisse=ACSEL"
 request = requests.get(url)
 supply = BeautifulSoup(request.text, "html.parser")
@@ -72,6 +72,7 @@ for each in STOCKS:
             filteredData = data.filter(items=['itemDescTr', 'value1', 'value2', 'value3', 'value4'])
             filteredData = filteredData.rename(columns={'itemDescTr': title,'value1': d1, 'value2': d2, 'value3': d3, 'value4': d4})
             # filteredData = filteredData[filteredData[title] == 'BRÜT KAR (ZARAR)']
+            filteredData.drop_duplicates(subset=title, inplace=True)
             filteredData.set_index(title, inplace=True)
  
             stockData.append(filteredData)
@@ -85,9 +86,12 @@ for each in STOCKS:
         #     i.reset_index(drop=True, inplace=True)
 
         df = pd.concat(stockData, axis=1)
+        df = df.reset_index()
         df.fillna(0, inplace=True)
         # df.insert(0,title, col1)
         df = df.loc[:, ~df.columns.duplicated()]
+        numeric = df.columns[1:]
+        df[numeric] = df[numeric].astype(int)
         
         df.to_excel("/home/gun/Documents/ReportCollector/FinancialReports/{}.xlsx".format(each), index=False)
     except AttributeError:
