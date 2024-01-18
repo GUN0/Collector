@@ -10,7 +10,7 @@ from itertools import zip_longest
 warnings.filterwarnings("ignore")
 
 # Getting the info from webpage
-STOCKS = ["ALARK"]
+STOCKS = ["ACSEL"]
 url = "https://www.isyatirim.com.tr/tr-tr/analiz/hisse/Sayfalar/sirket-karti.aspx?hisse=ACSEL"
 request = requests.get(url)
 supply = BeautifulSoup(request.text, "html.parser")
@@ -24,7 +24,6 @@ rawStocks = stockSupplier.findChild("optgroup").findAll("option")
 # Get each stocks date and period
 for each in STOCKS:
     dates = []
-    stockName = {}
     stockData = []
     title = 'Bilanço'
 
@@ -45,9 +44,10 @@ for each in STOCKS:
             args = [iter(iterable)] * n
             return zip_longest(*args, fillvalue=fillvalue)
 
-        dates = [list(filter(None, group)) for group in grouper(dates, 4, fillvalue=['2023', '9'])]
+        dates = [list(filter(None, group)) for group in grouper(dates, 4)]
+        proper_list = [sublist for sublist in dates if len(sublist) >= 4]
 
-        for a, b, c, d in dates:
+        for a, b, c, d in proper_list:
             parameters = (
                 ("companyCode", each),
                 ("exchange", "TRY"),
@@ -71,28 +71,16 @@ for each in STOCKS:
             data = pd.DataFrame.from_dict(req2)
             filteredData = data.filter(items=['itemDescTr', 'value1', 'value2', 'value3', 'value4'])
             filteredData = filteredData.rename(columns={'itemDescTr': title,'value1': d1, 'value2': d2, 'value3': d3, 'value4': d4})
-            # filteredData = filteredData[filteredData[title] == 'BRÜT KAR (ZARAR)']
             filteredData.drop_duplicates(subset=title, inplace=True)
             filteredData.set_index(title, inplace=True)
  
             stockData.append(filteredData)
 
-        # a = stockData[0][title]
-        # col1 = pd.DataFrame(a, columns=[title])
-        # col1.reset_index(drop=True, inplace=True)
-        #
-        # for i in stockData:
-        #     i.drop(columns=title, inplace=True)
-        #     i.reset_index(drop=True, inplace=True)
-
         df = pd.concat(stockData, axis=1)
-        df = df.reset_index()
         df.fillna(0, inplace=True)
-        # df.insert(0,title, col1)
-        df = df.loc[:, ~df.columns.duplicated()]
-        numeric = df.columns[1:]
-        df[numeric] = df[numeric].astype(int)
+        # df = df.loc[:, ~df.columns.duplicated()]
+        df = df.astype(int)
         
-        df.to_excel("/home/gun/Documents/ReportCollector/FinancialReports/{}.xlsx".format(each), index=False)
+        df.to_excel("/home/gun/Documents/ReportCollector/FinancialReports/{}.xlsx".format(each), index=True)
     except AttributeError:
         continue
