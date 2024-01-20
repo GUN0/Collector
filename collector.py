@@ -3,14 +3,24 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import openpyxl
 import warnings
-
-from itertools import chain
 from itertools import zip_longest
 
 warnings.filterwarnings("ignore")
 
 # Getting the info from webpage
-STOCKS = ["ACSEL"]
+STOCKS = ["ACSEL","ADEL","AFYON","AGROT","AKCNS","ATEKS","AKSA","ALCAR","ALKIM","ALKA","ALMAD","AEFES","ASUZU","ANGEN","ARCLK","ARSAN","ASTOR","ATAKP","AVOD",
+          "AYGAZ","BAGFS","BAKAB","BNTAS","BANVT","BARMA","BTCIM","BSOKE","BAYRK","BRKSN","BIENY","BLCYT","BMSTL","BMSCH","BOBET","BRSAN","BFREN","BOSSA",
+          "BRISA","BURCE","BURVA","BUCIM","BVSAN","CCOLA","CVKMD","CELHA","CEMSA","CEMTS","CMBTN","CIMSA","CUSAN","DAGI","DARDL","DMSAS","DERIM","DESA","DEVA",
+          "DNISI","DITAS","DMRGD","DOFER","DGNMO","DOGUB","DOKTA","DURDO","DYOBY","EGEEN","EGGUB","EGPRO","EGSER","EPLAS","EKOS","EKSUN","ELITE","EMKEL",
+          "ENSRI","ERBOS","ERCB","EREGL","ERSU","TEZOL","EUREN","EUPWR","FADE","FMIZP","FROTO","FORMT","FRIGO","GEDZA","GENTS","GEREL","GIPTA","GOODY",
+          "GOKNR","GOLTS","GUBRF","HATEK","HATSN","HEKTS","HKTM","ISKLP","IHEVA","IMASM","IPEKE","ISDMR","ISSEN","IZINV","IZMDC","IZFAS","JANTS","KLKIM",
+          "KLSER","KAPLM","KRDMA","KRMDB","KRDMD","KARSN","KRTEK","KARTN","KATMR","KAYSE","KERVT","KRVGD","KMPUR","KLMSN","KCAER","KLSYN","KNFRT","KONYA",
+          "KONKA","KORDS","KRPLS","KOZAL","KOZAA","KOPOL","KRSTL","KBORU","KUTPO","KTSKR","LUKSK","MAKIM","MAKTK","MRSHL","MEDTR","MEGMT","MEGAP","MEKAG",
+          "MNDRS","MERCN","MERKO","MNDTR","NIBAS","NUHCM","OFSYM","ONCSM","ORCAY","OTKAR","OYAKC","OYLUM","OZRDN","OZSUB","PNLSN","PRKME","PARSN","PENGD",
+          "PETKM","PETUN","PINSU","PNSUT","POLTK","PRZMA","QUAGR","RNPOL","RODRG","RTALB","RUBNS","SAFKR","SNICA","SANFM","SAMAT","SARKY","SASA","SAYAS",
+          "SEKUR","SELGD","SELVA","SEYKM","SILVR","SOKE","SKTAS","SUNTK","TARKM","TATGD","TMPOL","TETMT","TOASO","TUCLK","TUKAS","MARBL","TRILC","TMSN",
+          "TUPRS","PRKAB","TTRAK","ULUSE","ULUUN","USAK","ULKER","VANGD","VESBE","VESTL","VKING","YAPRK","YATAS","YYLGD","YKLSN","YUNSA"]                                                                                                                                                                   
+
 url = "https://www.isyatirim.com.tr/tr-tr/analiz/hisse/Sayfalar/sirket-karti.aspx?hisse=ACSEL"
 request = requests.get(url)
 supply = BeautifulSoup(request.text, "html.parser")
